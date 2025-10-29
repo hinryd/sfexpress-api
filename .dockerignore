@@ -42,10 +42,8 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
-# Documentation
-README.md
+# Documentation (README.md needed by hatchling)
 EXAMPLES.md
-*.md
 
 # Other
 .env

@@ -15,7 +15,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
-COPY . /app
+COPY ./ /app/
 
 # Install Python dependencies
 RUN uv sync --frozen
