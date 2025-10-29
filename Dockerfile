@@ -17,14 +17,13 @@ RUN apt-get update && \
 # Copy project files
 COPY pyproject.toml /app/
 COPY uv.lock /app/
-
-# Install Python dependencies
-RUN uv sync --frozen
-
 COPY manage.py /app/
 COPY sfexpress_api /app/sfexpress_api
 COPY api /app/api
 COPY docs /app/docs
+
+# Install Python dependencies
+RUN uv sync --frozen
 
 # Create data directory
 RUN mkdir -p /data
