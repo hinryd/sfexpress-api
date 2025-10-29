@@ -21,6 +21,15 @@ if [ ! -f /data/.initialized ]; then
     echo "First run detected, loading SF Express location data..."
     uv run python manage.py load_sfexpress_data
 
+    # Create superuser if credentials provided
+    if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+        echo "Creating superuser account..."
+        uv run python manage.py createsuperuser \
+            --noinput \
+            --username "$DJANGO_SUPERUSER_USERNAME" \
+            --email "${DJANGO_SUPERUSER_EMAIL:-admin@example.com}" || true
+    fi
+
     # Mark as initialized
     touch /data/.initialized
     echo "SF Express location data loaded successfully!"
