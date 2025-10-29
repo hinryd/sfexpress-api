@@ -20,8 +20,14 @@ COPY ./ /app/
 # Install Python dependencies
 RUN uv sync --frozen
 
+# Make entrypoint executable
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Expose port
 EXPOSE 8000
+
+# Set entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 # Default command
 CMD ["uv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
