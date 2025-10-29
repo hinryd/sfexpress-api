@@ -16,19 +16,14 @@ sleep 2
 echo "Running database migrations..."
 uv run python manage.py migrate --noinput
 
+# Setup admin user (runs on every deployment)
+echo "Setting up admin user..."
+uv run python manage.py setup_admin
+
 # Check if database is empty (first run)
 if [ ! -f /data/.initialized ]; then
     echo "First run detected, loading SF Express location data..."
     uv run python manage.py load_sfexpress_data
-
-    # Create superuser if credentials provided
-    if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
-        echo "Creating superuser account..."
-        uv run python manage.py createsuperuser \
-            --noinput \
-            --username "$DJANGO_SUPERUSER_USERNAME" \
-            --email "${DJANGO_SUPERUSER_EMAIL:-admin@example.com}" || true
-    fi
 
     # Mark as initialized
     touch /data/.initialized

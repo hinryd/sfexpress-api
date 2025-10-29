@@ -10,9 +10,8 @@ services:
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
       - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-}
-      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-}
-      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-}
-      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@example.com}
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD:-}
+      - DJANGO_ADMIN_EMAIL=${DJANGO_ADMIN_EMAIL:-admin@example.com}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
