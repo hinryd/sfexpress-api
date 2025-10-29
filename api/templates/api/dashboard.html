@@ -1,0 +1,140 @@
+{% extends 'api/base.html' %}
+
+{% block title %}Dashboard - SF Express Locations API{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Welcome, {{ user.username }}!</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Available Credits</h3>
+            <div class="value">{{ credit_balance.credits }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Earned</h3>
+            <div class="value">{{ credit_balance.total_earned }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Spent</h3>
+            <div class="value">{{ credit_balance.total_spent }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Active API Keys</h3>
+            <div class="value">{{ api_keys|length }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>API Keys</h2>
+    <p style="color: #666; margin-bottom: 20px;">Manage your API keys for accessing the SF Express Locations API</p>
+
+    <form method="post" action="{% url 'create_api_key_dashboard' %}" style="margin-bottom: 30px;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="key_name">Create New API Key</label>
+            <input type="text" id="key_name" name="key_name" placeholder="e.g., Production Key, Test Key" required>
+        </div>
+        <button type="submit" class="btn">Create API Key</button>
+    </form>
+
+    {% if api_keys %}
+        <div class="api-key-list">
+            {% for key in api_keys %}
+                <div class="api-key-item">
+                    <div class="api-key-info">
+                        <h4>{{ key.name }}</h4>
+                        <code>{{ key.key }}</code>
+                        <div class="api-key-meta">
+                            Created: {{ key.created_at|date:"M d, Y H:i" }}
+                            {% if key.last_used %}
+                                | Last used: {{ key.last_used|date:"M d, Y H:i" }}
+                            {% else %}
+                                | Never used
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <form method="post" action="{% url 'delete_api_key' key.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this API key?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You don't have any API keys yet. Create one above to get started!
+        </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Recent Transactions</h2>
+    {% if transactions %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="text-align: left; padding: 12px; color: #666;">Date</th>
+                    <th style="text-align: left; padding: 12px; color: #666;">Type</th>
+                    <th style="text-align: right; padding: 12px; color: #666;">Amount</th>
+                    <th style="text-align: right; padding: 12px; color: #666;">Balance After</th>
+                    <th style="text-align: left; padding: 12px; color: #666;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 12px; color: #333;">{{ txn.created_at|date:"M d, Y H:i" }}</td>
+                        <td style="padding: 12px; color: #333;">{{ txn.get_transaction_type_display }}</td>
+                        <td style="padding: 12px; text-align: right; color: {% if txn.amount < 0 %}#dc3545{% else %}#28a745{% endif %}; font-weight: 600;">
+                            {% if txn.amount > 0 %}+{% endif %}{{ txn.amount }}
+                        </td>
+                        <td style="padding: 12px; text-align: right; color: #333; font-weight: 600;">{{ txn.balance_after }}</td>
+                        <td style="padding: 12px; color: #666;">{{ txn.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            No transactions yet.
+        </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>API Usage</h2>
+    <p style="color: #666; margin-bottom: 20px;">Use your API key to access location data</p>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+        <h4 style="color: #333; margin-bottom: 15px;">Example Request</h4>
+        <code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; overflow-x: auto; font-family: 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.5;">
+curl -X GET "http://localhost:8000/api/locations?type=LOCKER" \<br>
+  -H "Authorization: Bearer YOUR_API_KEY"
+        </code>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 6px;">
+        <h4 style="color: #333; margin-bottom: 10px;">API Endpoints</h4>
+        <ul style="color: #666; line-height: 2;">
+            <li><strong>GET /api/locations</strong> - Get all locations (5 credits)</li>
+            <li>Query Parameters:
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li><code>type</code> - Filter by LOCKER or SHOP</li>
+                    <li><code>district</code> - Filter by district name</li>
+                    <li><code>search</code> - Search by location name</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
