@@ -123,10 +123,14 @@ def dashboard(request):
     # Get recent transactions
     transactions = request.user.credit_transactions.all()[:20]
 
+    # Get site URL from request
+    site_url = f"{request.scheme}://{request.get_host()}"
+
     context = {
         'credit_balance': credit_balance,
         'api_keys': api_keys,
         'transactions': transactions,
+        'site_url': site_url,
     }
 
     return render(request, 'api/dashboard.html', context)

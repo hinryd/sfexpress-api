@@ -51,7 +51,13 @@
                 <div class="api-key-item">
                     <div class="api-key-info">
                         <h4>{{ key.name }}</h4>
-                        <code>{{ key.key }}</code>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <code id="key-{{ key.id }}">{{ key.key }}</code>
+                            <button type="button" class="btn-copy" onclick="copyToClipboard('{{ key.key }}', this)" title="Copy to clipboard">
+                                <span class="copy-icon">📋</span>
+                                <span class="copy-text">Copy</span>
+                            </button>
+                        </div>
                         <div class="api-key-meta">
                             Created: {{ key.created_at|date:"M d, Y H:i" }}
                             {% if key.last_used %}
@@ -118,8 +124,35 @@
     <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
         <h4 style="color: #333; margin-bottom: 15px;">Example Request</h4>
         <code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; overflow-x: auto; font-family: 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.5;">
-curl -X GET "http://localhost:8000/api/locations?type=LOCKER" \<br>
+curl -X GET "{{ site_url }}/api/locations?type=LOCKER" \<br>
   -H "Authorization: Bearer YOUR_API_KEY"
+        </code>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+        <h4 style="color: #333; margin-bottom: 15px;">Example Response</h4>
+        <code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; overflow-x: auto; font-family: 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.5; max-height: 400px;">
+{<br>
+  <span style="color: #a6e22e;">"status"</span>: <span style="color: #e6db74;">"success"</span>,<br>
+  <span style="color: #a6e22e;">"count"</span>: <span style="color: #ae81ff;">1027</span>,<br>
+  <span style="color: #a6e22e;">"cost"</span>: <span style="color: #ae81ff;">5</span>,<br>
+  <span style="color: #a6e22e;">"remaining_credits"</span>: <span style="color: #ae81ff;">95</span>,<br>
+  <span style="color: #a6e22e;">"data"</span>: [<br>
+    {<br>
+      <span style="color: #a6e22e;">"id"</span>: <span style="color: #ae81ff;">1</span>,<br>
+      <span style="color: #a6e22e;">"location_type"</span>: <span style="color: #e6db74;">"LOCKER"</span>,<br>
+      <span style="color: #a6e22e;">"name"</span>: <span style="color: #e6db74;">"SF Locker H852FH21P - Tai Wai"</span>,<br>
+      <span style="color: #a6e22e;">"address"</span>: <span style="color: #e6db74;">"Locker No.1, Shop No.36, 2/F, Sun Chui Shopping Centre..."</span>,<br>
+      <span style="color: #a6e22e;">"district"</span>: <span style="color: #e6db74;">"Tai Wai"</span>,<br>
+      <span style="color: #a6e22e;">"phone"</span>: <span style="color: #e6db74;">"+852-2730-0273"</span>,<br>
+      <span style="color: #a6e22e;">"opening_hours"</span>: <span style="color: #e6db74;">"24/7"</span>,<br>
+      <span style="color: #a6e22e;">"latitude"</span>: <span style="color: #f92672;">null</span>,<br>
+      <span style="color: #a6e22e;">"longitude"</span>: <span style="color: #f92672;">null</span>,<br>
+      <span style="color: #a6e22e;">"is_active"</span>: <span style="color: #f92672;">true</span><br>
+    },<br>
+    <span style="color: #75715e;">// ... more locations</span><br>
+  ]<br>
+}
         </code>
     </div>
 
@@ -137,4 +170,58 @@ curl -X GET "http://localhost:8000/api/locations?type=LOCKER" \<br>
         </ul>
     </div>
 </div>
+
+<style>
+.btn-copy {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-copy:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.btn-copy:active {
+    background: #d1d5db;
+}
+
+.btn-copy.copied {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.copy-icon {
+    font-size: 14px;
+}
+</style>
+
+<script>
+function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Change button state
+        const originalHTML = button.innerHTML;
+        button.classList.add('copied');
+        button.innerHTML = '<span class="copy-icon">✓</span><span class="copy-text">Copied!</span>';
+
+        // Reset after 2 seconds
+        setTimeout(function() {
+            button.classList.remove('copied');
+            button.innerHTML = originalHTML;
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+    });
+}
+</script>
 {% endblock %}
